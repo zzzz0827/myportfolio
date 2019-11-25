@@ -1,0 +1,382 @@
+package dw;
+
+import java.util.Random;
+import java.util.Scanner;
+
+// 언어 선택, Choice Language
+class blackJackLanguageChoice {
+	Scanner sc = new Scanner(System.in);
+	public blackJackLanguageChoice(){
+		blackJackEnglish bje = new blackJackEnglish();
+		blackJackKorean bjk = new blackJackKorean();
+		
+		System.out.println("Choice Language. Korean / English");
+		String language = sc.next();
+		switch(language) {
+		case "korean":
+		case "Korean": bjk.menu(); break;
+		case "english":
+		case "English": bje.menu(); break;
+		default: System.out.println("Please text Korean / English only.  restart please");
+		}
+	}
+}
+
+// english
+class blackJackEnglish{
+	Scanner sc = new Scanner(System.in);
+	Random rd = new Random();
+	int card[] = new int[10];
+	int cardSize = 0;
+	int maxNum = 10;
+	int sum = 0;
+	int dealerCard = 16;
+	
+	// Menu
+	public void menu() {
+		System.out.println("--------------------------------");
+		System.out.println("\t   BlackJack");
+		System.out.println("1. Start\t2. How to play?");
+		System.out.println("3. Exit");
+		System.out.println("--------------------------------");
+		
+		System.out.println("Choice num : ");
+		int sel_menu = sc.nextInt();
+		switch(sel_menu) {
+		case 1:
+			System.out.println("Black Jack Start");
+			System.out.println("------------------------------");
+			delay(1);
+			drawCard(); drawCard();
+			progress();
+			break;
+		case 2: howToPlay(); break;
+		case 3:	exit(); break;
+		default: System.out.println("You did wrong choice!"); delay(1); menu();
+		}
+	}
+	
+	// Check Card
+	public void nowCard() {
+		System.out.println("---------------------------");
+		String cardPrintln = "Now your card : ";
+		for(int i = 0; i < 10; i++) {
+			if(card[i] == 1) cardPrintln += "A ";
+			else if(card[i] == 11) cardPrintln += "J ";
+			else if(card[i] == 12) cardPrintln += "Q ";
+			else if(card[i] == 13) cardPrintln += "K ";
+			else if(card[i] == 0) continue;
+			else cardPrintln += card[i] + " ";
+		}
+		
+		System.out.println(cardPrintln);
+	}
+		
+	// Progress
+	public void progress() {
+		nowCard();
+		System.out.println("\n" + sum);
+		System.out.println("\nDo you wanna draw card?  Y/N or yes/no");
+		String drawCard = sc.next();
+		if(drawCard.equals("Y") || drawCard.equals("y") || drawCard.equals("yes")) {
+			drawCard();
+			if(sum < 21) progress();
+			else if(sum > 21){
+				nowCard();
+				delay(1);
+				System.out.println("BUST!");
+				delay(1);
+				playerLose();
+			}else if(sum == 21) {
+				nowCard();
+				delay(1);
+				System.out.println("\nBLACK JACK!");
+				delay(1);
+				playerWin();
+			}
+		}else if(drawCard.equals("N") || drawCard.equals("n") || drawCard.equals("no")) {
+			dealerCard += rd.nextInt(4 + 1);
+			System.out.println("Sum of dealer's cards : " + dealerCard);
+			System.out.println("Sum of your cards : " + sum);
+			if(dealerCard < sum || dealerCard == sum) playerWin();
+			else if(dealerCard > sum) playerLose();
+		}
+	}
+	
+	// Introduce
+	public void howToPlay() {
+		System.out.println("--------------------------------------");
+		System.out.println("How to play");
+		System.out.println("The way to win is if your card is higher than your opponent's.");
+		System.out.println("First, you will get the two cards");
+		System.out.println("Second, If you want, You can draw card. But, The sum of the cards must not exceed 21.");
+		System.out.println("If the sum of the cards is 21, You win the game unconditionally.");
+		System.out.println("Specifically, If you will get A, You will can choice 1 and 11");
+		System.out.println("And, J, Q and K is calculate to 10.");
+		System.out.println("But, If the sum of cards exceeds 21, You lose the game unconditionally.");
+		System.out.println("And if the total of your cards and the dealer's total are the same, you win.");
+		System.out.println("Let's try the game!");
+		System.out.println("--------------------------------------");
+		System.out.println("Wait 20 seconds.");
+		delay(20);
+		menu();
+	}
+	
+	// End
+	public void exit() {
+		System.out.println("System off....");
+	}
+	
+	// Draw the card
+	public void drawCard() {
+		System.out.println("Drawing Card now....");
+		delay(1);
+		card[cardSize++] = rd.nextInt(13) + 1;
+		if(card[cardSize - 1] == 1) {
+			System.out.println("You got the A");
+			System.out.println("Which number do you want to choose?  1 or 11");
+			System.out.println("If you will choice wrong number, It will be chosen randomly.");
+			int choiceAceNum = sc.nextInt();
+			if(choiceAceNum == 1) {
+				System.out.println("You choose 1.");
+				sum += 1;
+			}else if(choiceAceNum == 11) {
+				System.out.println("You choose 11.");
+				sum += 11;
+			}else {
+				System.out.println("You choose wrong number!");
+				System.out.println("Random choice.");
+				int aceNumRandom = rd.nextInt(2);
+				if(aceNumRandom == 0) sum += 1;
+				else if(aceNumRandom == 1) sum += 11;
+			}
+		}else if(card[cardSize - 1] == 11 || card[cardSize - 1] == 12 || card[cardSize - 1] == 13) sum += 10;
+		else sum += card[cardSize - 1];
+		
+	}
+	
+	// win
+	public void playerWin() {
+		System.out.println("YOU WIN!");
+		System.out.println("Try again?  Y/N or yes/no");
+		wantRestart();
+	}
+	
+	// lose
+	public void playerLose() {
+		System.out.println("You lose");
+		System.out.println("Try again?  Y/N or yes/no");
+		wantRestart();
+	}
+	
+	// Restart
+	public void wantRestart() {
+		String tryAgain = sc.next();
+		if(tryAgain.equals("Y") || tryAgain.equals("yes") || tryAgain.endsWith("y")) {
+			reset();
+			menu();
+		}else if(tryAgain.equals("N") || tryAgain.equals("no") || tryAgain.endsWith("n")) {
+			System.out.println("Game over.");
+			System.out.println("Good bye! System Down....");
+		}
+	}
+	
+	// Reset
+	public void reset() {
+		for(int i = 0; i < 10; i++) card[i] = 0;
+		sum = 0;
+		cardSize = 0;
+		dealerCard = 16;
+	}
+	
+	// Delay
+	public void delay(int i) {
+		try {
+			Thread.sleep(i * 1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+}
+
+// 한국어
+class blackJackKorean{
+	Scanner sc = new Scanner(System.in);
+	Random rd = new Random();
+	int card[] = new int[10];
+	int cardSize = 0;
+	int maxNum = 10;
+	int sum = 0;
+	int dealerCard = 16;
+	
+	// 메뉴
+	public void menu() {
+		System.out.println("--------------------------------");
+		System.out.println("\t   블랙잭");
+		System.out.println("1. 시작\t2. 설명");
+		System.out.println("3. 종료");
+		System.out.println("--------------------------------");
+		
+		System.out.println("선택하세요 : ");
+		int sel_menu = sc.nextInt();
+		switch(sel_menu) {
+		case 1:
+			System.out.println("블랙잭 시작");
+			System.out.println("------------------------------");
+			delay(1);
+			drawCard(); drawCard();
+			progress();
+			break;
+		case 2: howToPlay(); break;
+		case 3:	exit(); break;
+		default: System.out.println("잘못 된 선택을 하셨습니다!"); delay(1); menu();
+		}
+	}
+	
+	// 카드 확인
+	public void nowCard() {
+		System.out.println("---------------------------");
+		String cardPrintln = "당신의 카드 : ";
+		for(int i = 0; i < 10; i++) {
+			if(card[i] == 1) cardPrintln += "A ";
+			else if(card[i] == 11) cardPrintln += "J ";
+			else if(card[i] == 12) cardPrintln += "Q ";
+			else if(card[i] == 13) cardPrintln += "K ";
+			else if(card[i] == 0) continue;
+			else cardPrintln += card[i] + " ";
+		}
+		System.out.println(cardPrintln);
+	}
+		
+	// 진행
+	public void progress() {
+		nowCard();
+		System.out.println("\n" + sum);
+		System.out.println("\n카드를 뽑으시겠습니까?  Y/N 또는 yes/no");
+		String drawCard = sc.next();
+		if(drawCard.equals("Y") || drawCard.equals("y") || drawCard.equals("yes")) {
+			drawCard();
+			if(sum < 21) progress();
+			else if(sum > 21){
+				nowCard();
+				delay(1);
+				System.out.println("버스트!");
+				delay(1);
+				playerLose();
+			}else if(sum == 21) {
+				nowCard();
+				delay(1);
+				System.out.println("\n블랙잭!");
+				delay(1);
+				playerWin();
+			}
+		}else if(drawCard.equals("N") || drawCard.equals("n") || drawCard.equals("no")) {
+			dealerCard += rd.nextInt(4 + 1);
+			System.out.println("딜러의 카드 합 : " + dealerCard);
+			System.out.println("당신의 카드 합 : " + sum);
+			if(dealerCard < sum || dealerCard == sum) playerWin();
+			else if(dealerCard > sum) playerLose();
+		}
+	}
+	
+	
+	// 설명
+	public void howToPlay() {
+		System.out.println("--------------------------------------");
+		System.out.println("설명");
+		System.out.println("블랙잭의 승리 방법은 딜러 카드보다 당신의 카드가 높으면 됩니다.");
+		System.out.println("먼저, 당신은 두 개의 카드를 얻습니다.");
+		System.out.println("그리고, 당신이 원할 경우 21을 초과하기 전까지 카드를 뽑을 수 있습니다.");
+		System.out.println("특별하게도, A는 1 또는 11로 선택 할 수 있습니다.");
+		System.out.println("또, J, Q, K는 10으로 계산됩니다.");
+		System.out.println("만약에 당신의 카드의 합이 21일경우, 당신은 무조건 승리하게 됩니다.");
+		System.out.println("허나 당신의 카드의 합이 21을 넘을 경우, 당신은 무조건 패배하게 됩니다.");
+		System.out.println("또한 당신의 카드와 딜러의 카드 합이 같을 경우, 당신이 승리하게 됩니다.");
+		System.out.println("이제 게임을 시작 해 봅시다!");
+		System.out.println("--------------------------------------");
+		System.out.println("20초를 기다려 주세요.");
+		delay(20);
+		menu();
+	}
+	
+	// 종료
+	public void exit() {
+		System.out.println("시스템 종료....");
+	}
+	
+	// 카드 뽑기
+	public void drawCard() {
+		System.out.println("카드 뽑는 중....");
+		delay(1);
+		card[cardSize++] = rd.nextInt(13) + 1;
+		if(card[cardSize - 1] == 1) {
+			System.out.println("A를 획득했습니다.");
+			System.out.println("어떤 숫자를 선택 하시겠습니까?  1 또는 11");
+			System.out.println("만약 당신이 이상한 숫자를 입력한다면, 랜덤으로 선택됩니다.");
+			int choiceAceNum = sc.nextInt();
+			if(choiceAceNum == 1) {
+				System.out.println("1을 선택하셨습니다.");
+				sum += 1;
+			}else if(choiceAceNum == 11) {
+				System.out.println("11을 선택하셨습니다.");
+				sum += 11;
+			}else {
+				System.out.println("이상한 숫자를 선택하였습니다!");
+				System.out.println("무작위로 선택됩니다.");
+				int aceNumRandom = rd.nextInt(2);
+				if(aceNumRandom == 0) sum += 1;
+				else if(aceNumRandom == 1) sum += 11;
+			}
+		}else if(card[cardSize - 1] == 11 || card[cardSize - 1] == 12 || card[cardSize - 1] == 13) sum += 10;
+		else sum += card[cardSize - 1];
+	}
+	
+	// 승리
+	public void playerWin() {
+		System.out.println("승리!");
+		System.out.println("다시 시작하시겠습니까?  Y/N 또는 yes/no");
+		wantRestart();
+	}
+	
+	// 패배
+	public void playerLose() {
+		System.out.println("패배");
+		System.out.println("다시 시작하시겠습니까?  Y/N 또는 yes/no");
+		wantRestart();
+	}
+	
+	// 재시작 권유
+	public void wantRestart() {
+		String tryAgain = sc.next();
+		if(tryAgain.equals("Y") || tryAgain.equals("yes") || tryAgain.endsWith("y")) {
+			reset();
+			menu();
+		}else if(tryAgain.equals("N") || tryAgain.equals("no") || tryAgain.endsWith("n")) {
+			System.out.println("게임 종료.");
+			System.out.println("시스템 종료....");
+		}
+	}
+	
+	// 초기화
+	public void reset() {
+		for(int i = 0; i < 10; i++) card[i] = 0;
+		sum = 0;
+		cardSize = 0;
+		dealerCard = 16;
+	}
+	
+	// 딜레이	
+	public void delay(int i) {
+		try {
+			Thread.sleep(i * 1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+}
+
+public class BlackJackMain {
+	public static void main(String[] args) {
+		blackJackLanguageChoice bjlc = new blackJackLanguageChoice();
+	}
+}
